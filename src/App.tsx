@@ -1,35 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react'
+import LoginForm from './components/loginForm/LoginForm'
+import Dashboard from './components/dashboard/Dashboard.tsx'
+import {getMe} from "./api/users/users.ts";
+import {logout} from "./api/sessions/sessions.ts";
+import type {AuthStatus} from "./types/auth.ts";
+import type {MeResponse} from "./types/users.ts";
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [status, setStatus] = useState<AuthStatus>('checking')
+    const [me, setMe] = useState<MeResponse | null>(null)
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    useEffect(() => {
+        async function checkAuth() {
+            const stored = localStorage.getItem('accessToken')
+
+            if (!stored) {
+                setStatus('guest')
+                return
+            }
+
+            try {
+                const meData: MeResponse = await getMe(stored)
+                setMe(meData)
+                setStatus('auth')
+            } catch {
+                localStorage.removeItem('accessToken')
+                setMe(null)
+                setStatus('guest')
+            }
+        }
+
+        void checkAuth()
+    }, [])
+
+    function handleLoginSuccess(accessToken: string, meData: MeResponse) {
+        localStorage.setItem('accessToken', accessToken)
+        setMe(meData)
+        setStatus('auth')
+    }
+
+    async function handleLogout() {
+        const accessToken = localStorage.getItem('accessToken')
+
+        if (accessToken) {
+            try {
+                await logout(accessToken)
+            } catch {
+                // Fallback to local logout even if session revoke failed.
+            }
+        }
+
+        localStorage.removeItem('accessToken')
+        setMe(null)
+        setStatus('guest')
+    }
+
+    if (status === 'checking') return
+    if (status === 'guest') return <LoginForm onLoginSuccess={handleLoginSuccess} />
+
+    return <Dashboard me={me} onLogout={handleLogout} />
 }
 
 export default App
