@@ -1,11 +1,13 @@
 import './LoginForm.css'
 import { type SyntheticEvent, useState } from 'react'
+import { LogIn } from 'lucide-react'
 import { login } from '../../api/sessions/sessions'
 import { getMe } from '../../api/users/users.ts'
+import type { AuthResponse } from '../../types/auth.ts'
 import type { MeResponse } from '../../types/users.ts'
 
 type LoginFormProps = {
-  onLoginSuccess: (accessToken: string, meData: MeResponse) => void
+  onLoginSuccess: (authData: AuthResponse, meData: MeResponse) => void
 }
 
 function LoginForm({ onLoginSuccess }: LoginFormProps) {
@@ -25,8 +27,7 @@ function LoginForm({ onLoginSuccess }: LoginFormProps) {
       const data = await login(email, password)
       const meData = await getMe(data.accessToken)
 
-      localStorage.setItem('accessToken', data.accessToken)
-      onLoginSuccess(data.accessToken, meData)
+      onLoginSuccess(data, meData)
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message)
@@ -39,39 +40,45 @@ function LoginForm({ onLoginSuccess }: LoginFormProps) {
   }
 
   return (
-    <div className="container">
-      <div className="header">
-        <div className="text">Login</div>
-        <div className="underline"></div>
-      </div>
-      <form className="inputs" onSubmit={handleSubmit}>
-        <div className="input">
-          <input
-            type="email"
-            placeholder="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="login-wrap">
+      <div className="login-card">
+        <div className="login-head">
+          <h1>Login</h1>
+          <p>Enter your account email and password</p>
         </div>
-        <div className="input">
-          <input
-            type="password"
-            placeholder="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div className="submit-container">
-          <button className="submit" type="submit" disabled={loading}>
+
+        <form className="login-form" onSubmit={handleSubmit}>
+          <label className="login-label">
+            Email
+            <input
+              type="email"
+              placeholder="email@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
+
+          <label className="login-label">
+            Password
+            <input
+              type="password"
+              placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
+
+          <button className="login-submit" type="submit" disabled={loading}>
+            <LogIn size={15} />
             {loading ? 'Loading...' : 'Login'}
           </button>
-        </div>
-      </form>
+        </form>
 
-      {error && <p className="state-msg error">{error}</p>}
-      {success && <p className="state-msg success">{success}</p>}
+        {error && <p className="login-state error">{error}</p>}
+        {success && <p className="login-state success">{success}</p>}
+      </div>
     </div>
   )
 }

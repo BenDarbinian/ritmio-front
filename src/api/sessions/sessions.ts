@@ -1,30 +1,46 @@
-import type {AuthResponse} from "../../types/auth.ts";
-import {buildApiUrl} from "../../config/api.ts";
+import type { AuthResponse } from '../../types/auth.ts'
+import { buildApiUrl } from '../../config/api.ts'
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
-    const response = await fetch(buildApiUrl('/sessions'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-    })
+  const response = await fetch(buildApiUrl('/sessions'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  })
 
-    if (!response.ok) {
-        throw new Error('Неверный email или пароль')
-    }
+  if (!response.ok) {
+    throw new Error('Неверный email или пароль')
+  }
 
-    return response.json() as Promise<AuthResponse>
+  return response.json() as Promise<AuthResponse>
 }
 
 export async function logout(accessToken: string): Promise<void> {
-    const response = await fetch(buildApiUrl('/sessions'), {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-        },
-    })
+  const response = await fetch(buildApiUrl('/sessions'), {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
 
-    if (!response.ok && response.status !== 401) {
-        throw new Error('Не удалось завершить сессию')
-    }
+  if (!response.ok && response.status !== 401) {
+    throw new Error('Не удалось завершить сессию')
+  }
+}
+
+export async function refreshSession(accessToken: string): Promise<AuthResponse> {
+  const response = await fetch(buildApiUrl('/sessions/new-token'), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Не удалось обновить сессию')
+  }
+
+  return response.json() as Promise<AuthResponse>
 }

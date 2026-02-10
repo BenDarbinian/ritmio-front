@@ -1,14 +1,16 @@
 :root {
-  font-family: 'Space Grotesk', 'Segoe UI', Tahoma, sans-serif;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  --bg-1: #061126;
-  --bg-2: #142345;
-  --bg-3: #2a3a77;
+  color: #111827;
+  background: #f5f7fb;
+  font-size: 16px;
+  --accent-blue: #2563eb;
+  --accent-blue-soft: #eff6ff;
+  --accent-green: #22c55e;
+  --accent-green-soft: #dcfce7;
+  --accent-red: #dc2626;
+  --accent-red-soft: #fee2e2;
 }
 
 * {
@@ -17,11 +19,9 @@
 
 body {
   margin: 0;
-  min-width: 320px;
-  background: radial-gradient(circle at 15% 20%, var(--bg-3) 0%, transparent 35%),
-    radial-gradient(circle at 78% 15%, #124f73 0%, transparent 40%),
-    linear-gradient(145deg, var(--bg-1), var(--bg-2));
-  color: #f8faff;
+  background: #f5f7fb;
+  min-width: 20rem;
+  overflow-x: hidden;
 }
 
 #root {

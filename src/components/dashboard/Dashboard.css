@@ -1,83 +1,179 @@
-.dashboard-shell {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
+.dashboard-page {
+  width: min(100%, 72rem);
+  margin: 0 auto;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
 }
 
-.dashboard-card {
-  width: min(720px, 100%);
-  background: rgba(10, 18, 32, 0.74);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(10px);
-  border-radius: 22px;
-  padding: 24px;
-  color: #f6f8ff;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.34);
-}
-
-.dashboard-top {
+.dashboard-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 18px;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-identity {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.dashboard-user-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard-user-row p {
+  margin: 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dashboard-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.dashboard-top h1 {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
   margin: 0;
-  font-size: 28px;
-  letter-spacing: 0.3px;
 }
 
-.dashboard-subtitle {
-  margin: 4px 0 0;
-  color: #c6d2f5;
+.dashboard-header h1 {
+  margin: 0;
+  color: #111827;
+  font-size: clamp(1.4rem, 1.2rem + 1vw, 1.75rem);
 }
 
-.dashboard-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-}
-
-.dashboard-row .label {
-  color: #b2c4ff;
-}
-
-.dashboard-row code {
-  color: #ffffff;
-  font-size: 12px;
+.dashboard-header p {
+  margin: 0.25rem 0 0;
+  color: #6b7280;
+  font-size: clamp(0.82rem, 0.75rem + 0.3vw, 0.95rem);
 }
 
 .logout-btn {
-  margin-top: 18px;
-  border: none;
-  border-radius: 12px;
-  padding: 10px 16px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  background: var(--accent-red-soft);
+  color: var(--accent-red);
   cursor: pointer;
-  background: linear-gradient(120deg, #ff6f5f, #ff3e78);
-  color: white;
+  font-size: 0.9rem;
 }
 
-@media (max-width: 640px) {
-  .dashboard-card {
-    padding: 18px;
-    border-radius: 18px;
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 18rem minmax(0, 1fr);
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.left-panel,
+.center-panel {
+  min-width: 0;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: clamp(0.7rem, 1.2vw, 0.9rem);
+}
+
+.card + .card {
+  margin-top: 0.75rem;
+}
+
+.card h2,
+.card h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 1rem;
+}
+
+.mock-buttons {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.mock-buttons button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.56rem 0.62rem;
+  background: #f9fafb;
+  color: #111827;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.86rem;
+}
+
+.mock-buttons button.is-active {
+  border-color: var(--accent-blue);
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+}
+
+.filter-count {
+  min-width: 1.35rem;
+  text-align: center;
+  border-radius: 999px;
+  padding: 0.08rem 0.35rem;
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 0.78rem;
+  color: inherit;
+}
+
+@media (max-width: 64rem) {
+  .dashboard-layout {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .dashboard-row {
-    flex-direction: column;
-    gap: 4px;
+  .left-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
   }
+
+  .card + .card {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 42rem) {
+  .dashboard-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .left-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.calendar-actions {
+  margin-top: 0.55rem;
+}
+
+.go-today-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.5rem;
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+  padding: 0.52rem 0.62rem;
+  font-size: 0.83rem;
+  cursor: pointer;
 }
