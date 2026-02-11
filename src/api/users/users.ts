@@ -40,6 +40,18 @@ export async function resendVerificationEmail(email: string): Promise<void> {
   }
 }
 
+export async function verifyEmailToken(token: string): Promise<void> {
+  const query = new URLSearchParams({ token })
+
+  const response = await fetch(buildApiUrl(`/users/verify-email?${query.toString()}`), {
+    method: 'GET',
+  })
+
+  if (!response.ok) {
+    throw new Error('Ссылка подтверждения недействительна или устарела')
+  }
+}
+
 export async function getMe(accessToken?: string): Promise<MeResponse> {
   const response = await authFetch(
     '/users/me',

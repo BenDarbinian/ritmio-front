@@ -92,11 +92,8 @@
 }
 
 .auth-switch-link {
-  border: none;
-  background: transparent;
   color: var(--accent-blue);
   padding: 0;
-  cursor: pointer;
   font-size: 0.86rem;
   text-decoration: underline;
 }
@@ -151,6 +148,18 @@
   padding: 0.62rem 0.75rem;
   cursor: pointer;
   font-size: 0.9rem;
+}
+
+.verify-link-btn {
+  border: 1px solid #bfdbfe;
+  border-radius: 0.5rem;
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+  padding: 0.62rem 0.75rem;
+  text-decoration: none;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 @media (max-width: 42rem) {

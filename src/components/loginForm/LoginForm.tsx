@@ -1,18 +1,19 @@
 import './LoginForm.css'
 import { type SyntheticEvent, useState } from 'react'
 import { LogIn, UserPlus } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { LoginError, login } from '../../api/sessions/sessions'
 import { getMe, registerUser } from '../../api/users/users.ts'
 import type { AuthResponse } from '../../types/auth.ts'
 import type { MeResponse } from '../../types/users.ts'
 
 type LoginFormProps = {
+  mode: 'login' | 'register'
   onLoginSuccess: (authData: AuthResponse, meData: MeResponse) => void
   onVerificationRequired: (email: string) => void
 }
 
-function LoginForm({ onLoginSuccess, onVerificationRequired }: LoginFormProps) {
-  const [mode, setMode] = useState<'login' | 'register'>('login')
+function LoginForm({ mode, onLoginSuccess, onVerificationRequired }: LoginFormProps) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -118,32 +119,16 @@ function LoginForm({ onLoginSuccess, onVerificationRequired }: LoginFormProps) {
           {mode === 'login' ? (
             <>
               <span>No account?</span>
-              <button
-                type="button"
-                className="auth-switch-link"
-                onClick={() => {
-                  setMode('register')
-                  setError('')
-                  setSuccess('')
-                }}
-              >
+              <Link className="auth-switch-link" to="/register">
                 Sign up
-              </button>
+              </Link>
             </>
           ) : (
             <>
               <span>Have an account?</span>
-              <button
-                type="button"
-                className="auth-switch-link"
-                onClick={() => {
-                  setMode('login')
-                  setError('')
-                  setSuccess('')
-                }}
-              >
+              <Link className="auth-switch-link" to="/login">
                 Sign in
-              </button>
+              </Link>
             </>
           )}
         </div>

@@ -4,12 +4,14 @@ import { getMe } from './api/users/users.ts'
 import Dashboard from './components/dashboard/Dashboard.tsx'
 import EmailVerificationView from './components/loginForm/EmailVerificationView'
 import LoginForm from './components/loginForm/LoginForm'
+import VerifyEmailTokenPage from './components/loginForm/VerifyEmailTokenPage'
 import {
   clearAuthSession,
   getStoredAccessToken,
   getStoredRefreshAfter,
   persistAuthSession,
 } from './config/authSession.ts'
+import { Navigate, Route, Routes, useNavigate, useSearchParams } from 'react-router-dom'
 import type { AuthResponse, AuthStatus } from './types/auth.ts'
 import type { MeResponse } from './types/users.ts'
 
@@ -25,6 +27,8 @@ function App() {
   const [status, setStatus] = useState<AuthStatus>('checking')
   const [me, setMe] = useState<MeResponse | null>(null)
   const [verificationEmail, setVerificationEmail] = useState<string>('')
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const refreshTimerRef = useRef<number | null>(null)
   const scheduleRefreshRef = useRef<(refreshAfterIso: string) => void>(() => {})
 
@@ -114,7 +118,6 @@ function App() {
     async function checkAuth() {
       const storedToken = getStoredAccessToken()
       if (!storedToken) {
-        setVerificationEmail('')
         setStatus('guest')
         return
       }
@@ -146,7 +149,6 @@ function App() {
         clearRefreshTimer()
         clearStoredSession()
         setMe(null)
-        setVerificationEmail('')
         setStatus('guest')
       }
     }
@@ -169,7 +171,6 @@ function App() {
       clearRefreshTimer()
       clearStoredSession()
       setMe(null)
-      setVerificationEmail('')
       setStatus('guest')
     }
 
@@ -190,11 +191,13 @@ function App() {
     persistMeCache(meData)
     setVerificationEmail('')
     setStatus('auth')
+    navigate('/dashboard', { replace: true })
   }
 
   function handleVerificationRequired(email: string) {
     setVerificationEmail(email)
     setStatus('guest')
+    navigate(`/verify-email/pending?email=${encodeURIComponent(email)}`, { replace: true })
   }
 
   async function handleLogout() {
@@ -213,28 +216,67 @@ function App() {
     setMe(null)
     setVerificationEmail('')
     setStatus('guest')
+    navigate('/login', { replace: true })
   }
 
-  if (status === 'checking') return null
-  if (status === 'guest') {
-    if (verificationEmail) {
-      return (
-        <EmailVerificationView
-          email={verificationEmail}
-          onBackToLogin={() => setVerificationEmail('')}
-        />
-      )
-    }
+  if (status === 'checking') {
+    return null
+  }
 
-    return (
-      <LoginForm
-        onLoginSuccess={handleLoginSuccess}
-        onVerificationRequired={handleVerificationRequired}
+  const pendingEmail = searchParams.get('email') ?? verificationEmail
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={<Navigate to={status === 'auth' ? '/dashboard' : '/login'} replace />}
       />
-    )
-  }
-
-  return <Dashboard me={me} onLogout={handleLogout} />
+      <Route
+        path="/login"
+        element={status === 'auth'
+          ? <Navigate to="/dashboard" replace />
+          : (
+            <LoginForm
+              mode="login"
+              onLoginSuccess={handleLoginSuccess}
+              onVerificationRequired={handleVerificationRequired}
+            />
+          )}
+      />
+      <Route
+        path="/register"
+        element={status === 'auth'
+          ? <Navigate to="/dashboard" replace />
+          : (
+            <LoginForm
+              mode="register"
+              onLoginSuccess={handleLoginSuccess}
+              onVerificationRequired={handleVerificationRequired}
+            />
+          )}
+      />
+      <Route
+        path="/dashboard"
+        element={status === 'auth'
+          ? <Dashboard me={me} onLogout={() => void handleLogout()} />
+          : <Navigate to="/login" replace />}
+      />
+      <Route path="/verify-email" element={<VerifyEmailTokenPage />} />
+      <Route
+        path="/verify-email/pending"
+        element={(
+          <EmailVerificationView
+            email={pendingEmail}
+            onBackToLogin={() => {
+              setVerificationEmail('')
+              navigate('/login', { replace: true })
+            }}
+          />
+        )}
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
 }
 
 export default App

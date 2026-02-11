@@ -14,6 +14,11 @@ function EmailVerificationView({ email, onBackToLogin }: EmailVerificationViewPr
   const [error, setError] = useState('')
 
   async function handleResend() {
+    if (!email) {
+      setError('Email не указан')
+      return
+    }
+
     setSending(true)
     setError('')
     setMessage('')
@@ -41,13 +46,24 @@ function EmailVerificationView({ email, onBackToLogin }: EmailVerificationViewPr
         <div className="login-head">
           <h1>Verify your email</h1>
           <p>
-            We sent a verification email to <strong>{email}</strong>.
-            Confirm it before login.
+            {email ? (
+              <>
+                We sent a verification email to <strong>{email}</strong>.
+                Confirm it before login.
+              </>
+            ) : (
+              'Email for verification is not specified.'
+            )}
           </p>
         </div>
 
         <div className="verify-actions">
-          <button className="login-submit" type="button" disabled={sending} onClick={() => void handleResend()}>
+          <button
+            className="login-submit"
+            type="button"
+            disabled={sending || !email}
+            onClick={() => void handleResend()}
+          >
             <RotateCw size={15} />
             {sending ? 'Sending...' : 'Resend email'}
           </button>
