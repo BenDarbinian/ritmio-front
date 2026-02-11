@@ -29,7 +29,7 @@ export function shiftMonth(base: Date, diff: number): Date {
 
 export function getCalendarCells(monthDate: Date): CalendarCell[] {
   const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
-  const startOffset = firstDay.getDay()
+  const startOffset = (firstDay.getDay() + 6) % 7
   const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate()
   const cells: CalendarCell[] = []
 

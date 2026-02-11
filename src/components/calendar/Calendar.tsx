@@ -44,13 +44,13 @@ function Calendar({
       </div>
 
       <div className="calendar__weekdays">
-        <span>Su</span>
         <span>Mo</span>
         <span>Tu</span>
         <span>We</span>
         <span>Th</span>
         <span>Fr</span>
         <span>Sa</span>
+        <span>Su</span>
       </div>
 
       <div className="calendar__grid">
