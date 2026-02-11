@@ -1,16 +1,19 @@
 import './LoginForm.css'
 import { type SyntheticEvent, useState } from 'react'
-import { LogIn } from 'lucide-react'
-import { login } from '../../api/sessions/sessions'
-import { getMe } from '../../api/users/users.ts'
+import { LogIn, UserPlus } from 'lucide-react'
+import { LoginError, login } from '../../api/sessions/sessions'
+import { getMe, registerUser } from '../../api/users/users.ts'
 import type { AuthResponse } from '../../types/auth.ts'
 import type { MeResponse } from '../../types/users.ts'
 
 type LoginFormProps = {
   onLoginSuccess: (authData: AuthResponse, meData: MeResponse) => void
+  onVerificationRequired: (email: string) => void
 }
 
-function LoginForm({ onLoginSuccess }: LoginFormProps) {
+function LoginForm({ onLoginSuccess, onVerificationRequired }: LoginFormProps) {
+  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -24,11 +27,26 @@ function LoginForm({ onLoginSuccess }: LoginFormProps) {
     setLoading(true)
 
     try {
-      const data = await login(email, password)
+      if (mode === 'register') {
+        await registerUser({
+          name: name.trim(),
+          email: email.trim(),
+          password,
+        })
+        onVerificationRequired(email.trim())
+        return
+      }
+
+      const data = await login(email.trim(), password)
       const meData = await getMe(data.accessToken)
 
       onLoginSuccess(data, meData)
     } catch (err) {
+      if (err instanceof LoginError && err.code === 'EMAIL_NOT_VERIFIED') {
+        onVerificationRequired(email.trim())
+        return
+      }
+
       if (err instanceof Error) {
         setError(err.message)
       } else {
@@ -43,11 +61,30 @@ function LoginForm({ onLoginSuccess }: LoginFormProps) {
     <div className="login-wrap">
       <div className="login-card">
         <div className="login-head">
-          <h1>Login</h1>
-          <p>Enter your account email and password</p>
+          <h1>{mode === 'login' ? 'Login' : 'Register'}</h1>
+          <p>
+            {mode === 'login'
+              ? 'Enter your account email and password'
+              : 'Create an account. Verification email will be sent to you'}
+          </p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
+          {mode === 'register' && (
+            <label className="login-label">
+              Name
+              <input
+                type="text"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                minLength={2}
+                maxLength={255}
+                required
+              />
+            </label>
+          )}
+
           <label className="login-label">
             Email
             <input
@@ -66,15 +103,50 @@ function LoginForm({ onLoginSuccess }: LoginFormProps) {
               placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
               required
             />
           </label>
 
           <button className="login-submit" type="submit" disabled={loading}>
-            <LogIn size={15} />
-            {loading ? 'Loading...' : 'Login'}
+            {mode === 'login' ? <LogIn size={15} /> : <UserPlus size={15} />}
+            {loading ? 'Loading...' : mode === 'login' ? 'Login' : 'Register'}
           </button>
         </form>
+
+        <div className="auth-switch-row">
+          {mode === 'login' ? (
+            <>
+              <span>No account?</span>
+              <button
+                type="button"
+                className="auth-switch-link"
+                onClick={() => {
+                  setMode('register')
+                  setError('')
+                  setSuccess('')
+                }}
+              >
+                Sign up
+              </button>
+            </>
+          ) : (
+            <>
+              <span>Have an account?</span>
+              <button
+                type="button"
+                className="auth-switch-link"
+                onClick={() => {
+                  setMode('login')
+                  setError('')
+                  setSuccess('')
+                }}
+              >
+                Sign in
+              </button>
+            </>
+          )}
+        </div>
 
         {error && <p className="login-state error">{error}</p>}
         {success && <p className="login-state success">{success}</p>}

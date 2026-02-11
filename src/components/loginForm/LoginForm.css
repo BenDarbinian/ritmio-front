@@ -80,6 +80,31 @@
   cursor: not-allowed;
 }
 
+.auth-switch-row {
+  margin-top: 1.1rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid #eef0f3;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #6b7280;
+  font-size: 0.86rem;
+}
+
+.auth-switch-link {
+  border: none;
+  background: transparent;
+  color: var(--accent-blue);
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.86rem;
+  text-decoration: underline;
+}
+
+.auth-switch-link:hover {
+  color: #1d4ed8;
+}
+
 .login-state {
   margin: 0.75rem 0 0;
   font-size: 0.88rem;
@@ -95,6 +120,37 @@
 .login-state.success {
   color: var(--accent-green);
   background: var(--accent-green-soft);
+}
+
+.verify-card {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.verify-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  border: 1px solid #bfdbfe;
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+  display: inline-grid;
+  place-items: center;
+}
+
+.verify-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.verify-back-btn {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  color: #374151;
+  padding: 0.62rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 42rem) {

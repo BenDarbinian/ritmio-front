@@ -86,7 +86,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
     }
   }, [menuTaskId])
 
-  const loadTasks = useCallback(async (date: string): Promise<void> => {
+  const loadTasks = useCallback(async (date: string, signal?: AbortSignal): Promise<void> => {
     setLoading(true)
     setError('')
 
@@ -95,11 +95,16 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
         date,
         limit: 50,
         page: 1,
+        signal,
       })
 
       setTasks(response.data)
       setTotal(response.total)
-    } catch {
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return
+      }
+
       setTasks([])
       setTotal(0)
       setError('Could not load tasks')
@@ -109,7 +114,12 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
   }, [])
 
   useEffect(() => {
-    void loadTasks(selectedDate)
+    const controller = new AbortController()
+    void loadTasks(selectedDate, controller.signal)
+
+    return () => {
+      controller.abort()
+    }
   }, [loadTasks, selectedDate])
 
   async function handleToggleTask(task: TaskListItem): Promise<void> {
@@ -149,7 +159,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
       })
 
       setCreateOpen(false)
-      await loadTasks(selectedDate)
+      void loadTasks(selectedDate)
     } catch {
       setError('Could not create task')
     } finally {

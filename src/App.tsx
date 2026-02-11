@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { logout, refreshSession } from './api/sessions/sessions.ts'
 import { getMe } from './api/users/users.ts'
 import Dashboard from './components/dashboard/Dashboard.tsx'
+import EmailVerificationView from './components/loginForm/EmailVerificationView'
 import LoginForm from './components/loginForm/LoginForm'
 import {
   clearAuthSession,
@@ -14,6 +15,7 @@ import type { MeResponse } from './types/users.ts'
 
 const MAX_TIMEOUT_MS = 2_147_000_000
 const REFRESH_EARLY_MS = 5_000
+const ME_CACHE_KEY = 'meCache'
 
 function nowMs() {
   return Date.now()
@@ -22,6 +24,7 @@ function nowMs() {
 function App() {
   const [status, setStatus] = useState<AuthStatus>('checking')
   const [me, setMe] = useState<MeResponse | null>(null)
+  const [verificationEmail, setVerificationEmail] = useState<string>('')
   const refreshTimerRef = useRef<number | null>(null)
   const scheduleRefreshRef = useRef<(refreshAfterIso: string) => void>(() => {})
 
@@ -34,10 +37,29 @@ function App() {
 
   function clearStoredSession() {
     clearAuthSession()
+    localStorage.removeItem(ME_CACHE_KEY)
   }
 
   function persistSession(authData: AuthResponse) {
     persistAuthSession(authData)
+  }
+
+  function persistMeCache(profile: MeResponse) {
+    localStorage.setItem(ME_CACHE_KEY, JSON.stringify(profile))
+  }
+
+  function readMeCache(): MeResponse | null {
+    const raw = localStorage.getItem(ME_CACHE_KEY)
+    if (!raw) {
+      return null
+    }
+
+    try {
+      return JSON.parse(raw) as MeResponse
+    } catch {
+      localStorage.removeItem(ME_CACHE_KEY)
+      return null
+    }
   }
 
   async function doRefreshNow(): Promise<string | null> {
@@ -92,9 +114,18 @@ function App() {
     async function checkAuth() {
       const storedToken = getStoredAccessToken()
       if (!storedToken) {
+        setVerificationEmail('')
         setStatus('guest')
         return
       }
+
+      const cachedProfile = readMeCache()
+      if (cachedProfile) {
+        setMe(cachedProfile)
+      }
+
+      // Do not block initial paint when token exists.
+      setStatus('auth')
 
       try {
         const refreshAfter = getStoredRefreshAfter()
@@ -110,11 +141,12 @@ function App() {
 
         const meData: MeResponse = await getMe()
         setMe(meData)
-        setStatus('auth')
+        persistMeCache(meData)
       } catch {
         clearRefreshTimer()
         clearStoredSession()
         setMe(null)
+        setVerificationEmail('')
         setStatus('guest')
       }
     }
@@ -137,6 +169,7 @@ function App() {
       clearRefreshTimer()
       clearStoredSession()
       setMe(null)
+      setVerificationEmail('')
       setStatus('guest')
     }
 
@@ -154,7 +187,14 @@ function App() {
     persistSession(authData)
     scheduleRefresh(authData.refreshAfter)
     setMe(meData)
+    persistMeCache(meData)
+    setVerificationEmail('')
     setStatus('auth')
+  }
+
+  function handleVerificationRequired(email: string) {
+    setVerificationEmail(email)
+    setStatus('guest')
   }
 
   async function handleLogout() {
@@ -171,11 +211,28 @@ function App() {
     clearRefreshTimer()
     clearStoredSession()
     setMe(null)
+    setVerificationEmail('')
     setStatus('guest')
   }
 
   if (status === 'checking') return null
-  if (status === 'guest') return <LoginForm onLoginSuccess={handleLoginSuccess} />
+  if (status === 'guest') {
+    if (verificationEmail) {
+      return (
+        <EmailVerificationView
+          email={verificationEmail}
+          onBackToLogin={() => setVerificationEmail('')}
+        />
+      )
+    }
+
+    return (
+      <LoginForm
+        onLoginSuccess={handleLoginSuccess}
+        onVerificationRequired={handleVerificationRequired}
+      />
+    )
+  }
 
   return <Dashboard me={me} onLogout={handleLogout} />
 }

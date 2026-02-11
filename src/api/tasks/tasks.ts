@@ -6,6 +6,7 @@ interface GetTasksInput {
   date: string
   page?: number
   limit?: number
+  signal?: AbortSignal
 }
 
 interface CreateTaskInput {
@@ -34,7 +35,12 @@ interface DeleteTaskInput {
   taskId: number
 }
 
-export async function getTasks({ date, page = 1, limit = 50 }: GetTasksInput): Promise<PaginatedResponse<TaskListItem>> {
+export async function getTasks({
+  date,
+  page = 1,
+  limit = 50,
+  signal,
+}: GetTasksInput): Promise<PaginatedResponse<TaskListItem>> {
   const query = new URLSearchParams({
     date,
     page: String(page),
@@ -45,6 +51,7 @@ export async function getTasks({ date, page = 1, limit = 50 }: GetTasksInput): P
     `/users/me/tasks?${query.toString()}`,
     {
       method: 'GET',
+      signal,
       headers: {
         'Content-Type': 'application/json',
       },
