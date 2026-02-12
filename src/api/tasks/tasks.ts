@@ -1,6 +1,6 @@
 import { authFetch } from '../authFetch'
-import type { PaginatedResponse } from '../../types/pagination'
-import type { TaskDetails, TaskListItem } from '../../types/tasks'
+import type { TasksPaginatedResponse } from '../../types/pagination'
+import type { TaskDetails } from '../../types/tasks'
 
 interface GetTasksInput {
   date: string
@@ -40,7 +40,7 @@ export async function getTasks({
   page = 1,
   limit = 50,
   signal,
-}: GetTasksInput): Promise<PaginatedResponse<TaskListItem>> {
+}: GetTasksInput): Promise<TasksPaginatedResponse> {
   const query = new URLSearchParams({
     date,
     page: String(page),
@@ -62,7 +62,7 @@ export async function getTasks({
     throw new Error('Failed to load tasks')
   }
 
-  return response.json() as Promise<PaginatedResponse<TaskListItem>>
+  return response.json() as Promise<TasksPaginatedResponse>
 }
 
 export async function createTask({

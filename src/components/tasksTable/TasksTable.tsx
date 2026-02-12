@@ -37,6 +37,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null)
   const [error, setError] = useState<string>('')
   const [total, setTotal] = useState<number>(0)
+  const [completed, setCompleted] = useState<number>(0)
 
   const [createOpen, setCreateOpen] = useState(false)
   const [creating, setCreating] = useState(false)
@@ -50,13 +51,12 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
 
   const menuBoxRef = useRef<HTMLDivElement | null>(null)
 
-  const completedCount = tasks.filter((task) => Boolean(task.completedAt)).length
-  const progressPercent = total > 0 ? Math.round((completedCount / total) * 100) : 0
+  const progressPercent = total > 0 ? Math.round((completed / total) * 100) : 0
   const visibleTasks = showCompletedOnly ? tasks.filter((task) => Boolean(task.completedAt)) : tasks
 
   useEffect(() => {
-    onCompletedCountChange(completedCount)
-  }, [completedCount, onCompletedCountChange])
+    onCompletedCountChange(completed)
+  }, [completed, onCompletedCountChange])
 
   useEffect(() => {
     setMenuTaskId(null)
@@ -100,6 +100,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
 
       setTasks(response.data)
       setTotal(response.total)
+      setCompleted(response.completed)
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
         return
@@ -107,6 +108,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
 
       setTasks([])
       setTotal(0)
+      setCompleted(0)
       setError('Could not load tasks')
     } finally {
       setLoading(false)
@@ -230,10 +232,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
 
     try {
       await deleteTask({ taskId })
-      setTasks((prev) => prev.filter((item) => item.id !== taskId))
-      setTotal((prev) => Math.max(0, prev - 1))
-      setMenuTaskId(null)
-      setMenuTaskDetails(null)
+      void loadTasks(selectedDate)
     } catch {
       setError('Could not delete task')
     } finally {
@@ -260,7 +259,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
           <div className="tasks-progress-head">
             <span>Progress</span>
             <span>
-              {completedCount}/{total} ({progressPercent}%)
+              {completed}/{total} ({progressPercent}%)
             </span>
           </div>
           <div className="tasks-progress-track" aria-label="Tasks progress">
