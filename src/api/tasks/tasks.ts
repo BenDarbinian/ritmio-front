@@ -4,6 +4,7 @@ import type { TaskDetails } from '../../types/tasks'
 
 interface GetTasksInput {
   date: string
+  completed?: boolean
   page?: number
   limit?: number
   signal?: AbortSignal
@@ -37,15 +38,18 @@ interface DeleteTaskInput {
 
 export async function getTasks({
   date,
+  completed,
   page = 1,
   limit = 50,
   signal,
 }: GetTasksInput): Promise<TasksPaginatedResponse> {
-  const query = new URLSearchParams({
-    date,
-    page: String(page),
-    limit: String(limit),
-  })
+  const query = new URLSearchParams()
+  query.set('date', date)
+  query.set('page', String(page))
+  query.set('limit', String(limit))
+  if (typeof completed === 'boolean') {
+    query.set('completed', String(completed))
+  }
 
   const response = await authFetch(
     `/users/me/tasks?${query.toString()}`,

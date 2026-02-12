@@ -52,7 +52,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
   const menuBoxRef = useRef<HTMLDivElement | null>(null)
 
   const progressPercent = total > 0 ? Math.round((completed / total) * 100) : 0
-  const visibleTasks = showCompletedOnly ? tasks.filter((task) => Boolean(task.completedAt)) : tasks
+  const visibleTasks = tasks
 
   useEffect(() => {
     onCompletedCountChange(completed)
@@ -93,6 +93,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
     try {
       const response = await getTasks({
         date,
+        completed: showCompletedOnly ? true : undefined,
         limit: 50,
         page: 1,
         signal,
@@ -113,7 +114,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [showCompletedOnly])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -122,7 +123,7 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
     return () => {
       controller.abort()
     }
-  }, [loadTasks, selectedDate])
+  }, [loadTasks, selectedDate, showCompletedOnly])
 
   async function handleToggleTask(task: TaskListItem): Promise<void> {
     setUpdatingTaskId(task.id)
