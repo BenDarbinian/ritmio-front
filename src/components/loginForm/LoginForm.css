@@ -4,6 +4,71 @@
   padding: clamp(0.75rem, 2vw, 1.5rem);
   display: grid;
   place-items: center;
+  background:
+    radial-gradient(circle at 12% 15%, rgba(20, 184, 166, 0.13), transparent 32%),
+    radial-gradient(circle at 88% 82%, rgba(14, 116, 144, 0.13), transparent 36%),
+    linear-gradient(180deg, #f8fbff 0%, #edf5ff 100%);
+}
+
+.auth__layout {
+  width: min(100%, 58rem);
+  border-radius: 1rem;
+  border: 1px solid #dbe6f5;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 28px 56px -34px rgba(15, 23, 42, 0.42);
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+}
+
+.auth__promo {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.2rem, 2vw, 1.7rem);
+  background-color: #1e293b;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #eff6ff;
+}
+
+.auth__promo::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  background-image: inherit;
+  background-size: inherit;
+  background-position: inherit;
+  background-repeat: inherit;
+  filter: blur(2px);
+  opacity: 0.18;
+  transform: scale(1.02);
+  pointer-events: none;
+}
+
+.auth__promo-content {
+  position: relative;
+  z-index: 2;
+  max-width: 21rem;
+}
+
+.auth__promo-content h2 {
+  margin: 0;
+  font-size: clamp(1.4rem, 1.15rem + 1vw, 2rem);
+  line-height: 1.15;
+  color: #ffffff;
+}
+
+.auth__promo-content p {
+  margin: 0.6rem 0 0;
+  color: #dbeafe;
+  font-size: 0.93rem;
+  line-height: 1.45;
+}
+
+.auth__panel {
+  padding: clamp(0.95rem, 1.8vw, 1.3rem);
+  background: #ffffff;
 }
 
 .auth__card {
@@ -138,6 +203,14 @@
 }
 
 @media (max-width: 42rem) {
+  .auth__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .auth__promo {
+    min-height: 11.5rem;
+  }
+
   .auth__card {
     width: 100%;
   }
