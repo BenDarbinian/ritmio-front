@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { getTaskSubtasks, updateSubtaskCompletion } from '../../api/tasks/tasks'
 import type { SubtaskItem } from '../../types/tasks'
@@ -27,18 +27,23 @@ function SubtasksModal({
     () => subtasks.filter((item) => Boolean(item.completedAt)).length,
     [subtasks],
   )
+  const onProgressChangeRef = useRef(onProgressChange)
+
+  useEffect(() => {
+    onProgressChangeRef.current = onProgressChange
+  }, [onProgressChange])
 
   useEffect(() => {
     if (loading) {
       return
     }
 
-    onProgressChange({
+    onProgressChangeRef.current({
       taskId,
       total: subtasks.length,
       completed,
     })
-  }, [completed, loading, onProgressChange, subtasks.length, taskId])
+  }, [completed, loading, subtasks.length, taskId])
 
   useEffect(() => {
     let active = true

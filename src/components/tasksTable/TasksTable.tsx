@@ -195,6 +195,21 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
     }
   }, [loadTasks, selectedDate, showCompletedOnly])
 
+  function syncCompletedCount(wasCompleted: boolean, isCompletedNow: boolean): boolean {
+    if (wasCompleted === isCompletedNow) {
+      return false
+    }
+
+    setCompleted((prev) => (wasCompleted ? Math.max(0, prev - 1) : prev + 1))
+    return true
+  }
+
+  function reloadWhenCompletedFilterActive(): void {
+    if (showCompletedOnly) {
+      void loadTasks(selectedDate)
+    }
+  }
+
   async function handleToggleTask(task: TaskListItem): Promise<void> {
     if (task.subtasksCount > 0) {
       setSubtasksDraft({
@@ -208,19 +223,27 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
     setError('')
 
     try {
+      const wasCompleted = Boolean(task.completedAt)
       const nextCompleted = !task.completedAt
       const updated = await updateTaskCompletion({
         taskId: task.id,
         completed: nextCompleted,
       })
+      const nextCompletedAt = updated.completedAt ?? (nextCompleted ? new Date().toISOString() : null)
+      const isCompletedNow = Boolean(nextCompletedAt)
 
       setTasks((prev) =>
         prev.map((item) =>
           item.id === task.id
-            ? { ...item, completedAt: updated.completedAt ?? (nextCompleted ? new Date().toISOString() : null) }
+            ? { ...item, completedAt: nextCompletedAt }
             : item,
         ),
       )
+
+      const completionChanged = syncCompletedCount(wasCompleted, isCompletedNow)
+      if (completionChanged) {
+        reloadWhenCompletedFilterActive()
+      }
     } catch {
       setError('Could not update task status')
     } finally {
@@ -348,6 +371,10 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
   }
 
   function handleSubtasksProgressChange(payload: { taskId: number, total: number, completed: number }): void {
+    const currentTask = tasks.find((task) => task.id === payload.taskId)
+    const wasCompleted = Boolean(currentTask?.completedAt)
+    const isCompletedNow = payload.total > 0 && payload.completed === payload.total
+
     setSubtaskProgressByTaskId((prev) => ({
       ...prev,
       [payload.taskId]: {
@@ -363,14 +390,13 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
 
       return {
         ...item,
-        completedAt: payload.total > 0 && payload.completed === payload.total
-          ? (item.completedAt ?? new Date().toISOString())
-          : null,
+        completedAt: isCompletedNow ? (item.completedAt ?? new Date().toISOString()) : null,
       }
     }))
 
-    if (showCompletedOnly) {
-      void loadTasks(selectedDate)
+    const completionChanged = syncCompletedCount(wasCompleted, isCompletedNow)
+    if (completionChanged) {
+      reloadWhenCompletedFilterActive()
     }
   }
 
