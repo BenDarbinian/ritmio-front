@@ -1,73 +1,105 @@
-# React + TypeScript + Vite
+# Ritmio Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend for **Ritmio** - a habit and daily task tracking product.
 
-Currently, two official plugins are available:
+This repository contains the React + TypeScript frontend with authentication flows, dashboard calendar, tasks/subtasks management, and session refresh handling.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Current Capabilities
 
-## React Compiler
+- User registration and login
+- Email verification and verification resend flow
+- JWT session usage with automatic token refresh (`/sessions/new-token`)
+- Protected dashboard routing for authenticated users
+- Date-based task management with calendar navigation
+- Task and subtask CRUD flows
+- Completed tasks filtering and progress tracking
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- Node.js 20+
+- TypeScript
+- React 19
+- Vite 7
+- React Router 7
+- ESLint 9
+- Lucide React
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js >= 20
+- npm >= 10
+- Running Ritmio API (default `http://localhost:8080`)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Quick Start
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Install dependencies:
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Create local env file:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+cp .env.example .env
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+3. Start frontend in dev mode:
+
+```bash
+npm run dev
+```
+
+Frontend will start on `http://localhost:5173` by default.
+
+## Environment Variables
+
+Use `.env.example` as base.
+
+### App
+
+- `VITE_API_URL` - API base URL (default `http://localhost:8080/api/v1`)
+
+## Scripts
+
+- `npm run dev` - start development server
+- `npm run build` - run TypeScript build and Vite production build
+- `npm run preview` - preview production build locally
+- `npm run lint` - run ESLint checks
+
+## Main Frontend Areas
+
+- Auth pages (`/login`, `/register`) - sign in/sign up flows
+- Email verification pages (`/verify-email`, `/verify-email/pending`)
+- Dashboard (`/dashboard`) - calendar and tasks workspace
+- Task flows - create/edit/delete tasks and manage subtasks
+- Session layer - access token storage, refresh scheduling, auth recovery
+
+## API Endpoints Used by Frontend
+
+- `POST /api/v1/sessions` - login
+- `DELETE /api/v1/sessions` - logout
+- `GET /api/v1/sessions/new-token` - refresh token
+- `POST /api/v1/users` - registration
+- `POST /api/v1/users/resend-verification` - resend verification email
+- `GET /api/v1/users/verify-email?token=...` - verify email
+- `GET /api/v1/users/me` - get profile
+- `GET /api/v1/users/me/tasks` - list tasks
+- `POST /api/v1/users/me/tasks` - create task
+- `GET /api/v1/users/me/tasks/:taskId` - get task details
+- `PATCH /api/v1/users/me/tasks/:taskId` - update task / completion
+- `DELETE /api/v1/users/me/tasks/:taskId` - delete task
+- `GET /api/v1/users/me/tasks/:taskId/subtasks` - list subtasks
+- `POST /api/v1/users/me/tasks/:taskId/subtasks` - create subtask
+- `PATCH /api/v1/users/me/tasks/:taskId/subtasks/:subtaskId` - update subtask completion
+
+## Project Structure
+
+```text
+src/
+  api/                 HTTP and API request layer
+  components/          UI modules (dashboard, auth, tasks, shared ui)
+  config/              API URL and auth session storage
+  types/               shared API/domain types
+  utils/               helper functions
 ```
