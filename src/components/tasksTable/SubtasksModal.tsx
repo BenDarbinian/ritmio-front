@@ -130,7 +130,9 @@ function SubtasksModal({
               }}
             >
               <p className="task-modal__subtask-title">{subtask.title}</p>
-              <StatusCircleIcon state={subtask.completedAt ? 'done' : 'empty'} tone="green" size="md" />
+              <div className="task-modal__subtask-actions">
+                <StatusCircleIcon state={subtask.completedAt ? 'done' : 'empty'} tone="green" size="md" />
+              </div>
             </li>
           ))}
         </ul>

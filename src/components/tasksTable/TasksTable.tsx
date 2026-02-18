@@ -3,11 +3,13 @@ import { Plus } from 'lucide-react'
 import {
   createSubtask,
   createTask,
+  deleteSubtask,
   deleteTask,
   getTaskDetails,
   getTaskSubtasks,
   getTasks,
   updateTask,
+  updateSubtaskTitle,
   updateTaskCompletion,
 } from '../../api/tasks/tasks'
 import type { TaskDetails, TaskListItem } from '../../types/tasks'
@@ -322,12 +324,35 @@ function TasksTable({ selectedDate, showCompletedOnly, onCompletedCountChange }:
       })
 
       const subtasksToCreate = payload.subtasks
+      const subtasksToUpdate = payload.subtaskUpdates
+      const subtasksToDelete = payload.subtaskDeletes
       if (subtasksToCreate.length > 0) {
         await Promise.all(subtasksToCreate.map((title) => createSubtask({
           taskId: editDraft.taskId,
           title,
         })))
       }
+
+      if (subtasksToUpdate.length > 0) {
+        await Promise.all(subtasksToUpdate.map((subtask) => updateSubtaskTitle({
+          taskId: editDraft.taskId,
+          subtaskId: subtask.id,
+          title: subtask.title,
+        })))
+      }
+
+      if (subtasksToDelete.length > 0) {
+        await Promise.all(subtasksToDelete.map((subtaskId) => deleteSubtask({
+          taskId: editDraft.taskId,
+          subtaskId,
+        })))
+      }
+
+      setSubtaskProgressByTaskId((prev) => {
+        const next = { ...prev }
+        delete next[editDraft.taskId]
+        return next
+      })
 
       setTasks((prev) => prev.map((item) => (item.id === editDraft.taskId ? { ...item, title: updated.title } : item)))
       void loadTasks(selectedDate)

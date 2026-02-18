@@ -53,7 +53,18 @@ interface UpdateSubtaskCompletionInput {
   completed: boolean
 }
 
-interface UpdateSubtaskCompletionResponse {
+interface UpdateSubtaskTitleInput {
+  taskId: number
+  subtaskId: number
+  title: string
+}
+
+interface DeleteSubtaskInput {
+  taskId: number
+  subtaskId: number
+}
+
+interface SubtaskMutationResponse {
   subtasks: SubtaskItem[]
   completedAt: string | null
 }
@@ -219,7 +230,7 @@ export async function updateSubtaskCompletion({
   taskId,
   subtaskId,
   completed,
-}: UpdateSubtaskCompletionInput): Promise<UpdateSubtaskCompletionResponse> {
+}: UpdateSubtaskCompletionInput): Promise<SubtaskMutationResponse> {
   const response = await authFetch(
     `/users/me/tasks/${taskId}/subtasks/${subtaskId}`,
     withJsonHeaders({
@@ -232,5 +243,43 @@ export async function updateSubtaskCompletion({
     throw new Error('Failed to update subtask')
   }
 
-  return response.json() as Promise<UpdateSubtaskCompletionResponse>
+  return response.json() as Promise<SubtaskMutationResponse>
+}
+
+export async function updateSubtaskTitle({
+  taskId,
+  subtaskId,
+  title,
+}: UpdateSubtaskTitleInput): Promise<SubtaskMutationResponse> {
+  const response = await authFetch(
+    `/users/me/tasks/${taskId}/subtasks/${subtaskId}`,
+    withJsonHeaders({
+      method: 'PATCH',
+      body: JSON.stringify({ title }),
+    }),
+  )
+
+  if (!response.ok) {
+    throw new Error('Failed to update subtask title')
+  }
+
+  return response.json() as Promise<SubtaskMutationResponse>
+}
+
+export async function deleteSubtask({
+  taskId,
+  subtaskId,
+}: DeleteSubtaskInput): Promise<SubtaskMutationResponse> {
+  const response = await authFetch(
+    `/users/me/tasks/${taskId}/subtasks/${subtaskId}`,
+    {
+      method: 'DELETE',
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error('Failed to delete subtask')
+  }
+
+  return response.json() as Promise<SubtaskMutationResponse>
 }
