@@ -14,8 +14,26 @@
 
 .dashboard__identity {
   display: grid;
-  gap: 0.2rem;
+  gap: 0.35rem;
   min-width: 0;
+}
+
+.dashboard__heading h1 {
+  margin: 0;
+  color: #111827;
+  font-size: clamp(1.35rem, 1.15rem + 0.9vw, 1.72rem);
+}
+
+.dashboard__heading p {
+  margin: 0.22rem 0 0;
+  color: #6b7280;
+  font-size: clamp(0.82rem, 0.75rem + 0.3vw, 0.92rem);
+}
+
+.dashboard__header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
 .dashboard__user {
@@ -42,12 +60,10 @@
 
 .dashboard__header h1 {
   margin: 0;
-  color: #111827;
-  font-size: clamp(1.4rem, 1.2rem + 1vw, 1.75rem);
 }
 
 .dashboard__header p {
-  margin: 0.25rem 0 0;
+  margin: 0;
   color: #6b7280;
   font-size: clamp(0.82rem, 0.75rem + 0.3vw, 0.95rem);
 }
@@ -56,6 +72,10 @@
   display: grid;
   grid-template-columns: 18rem minmax(0, 1fr);
   gap: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.dashboard__settings {
+  min-width: 0;
 }
 
 .dashboard__sidebar,
@@ -139,6 +159,12 @@
   .dashboard__header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .dashboard__header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .dashboard__sidebar {

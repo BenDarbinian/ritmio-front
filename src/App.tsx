@@ -204,6 +204,12 @@ function App() {
     }
   }
 
+  async function handleProfileUpdated(): Promise<void> {
+    const meData: MeResponse = await getMe()
+    setMe(meData)
+    persistMeCache(meData)
+  }
+
   function handleVerificationRequired(email: string) {
     setVerificationEmail(email)
     setStatus('guest')
@@ -268,7 +274,7 @@ function App() {
       <Route
         path="/dashboard"
         element={status === 'auth'
-          ? <Dashboard me={me} onLogout={() => void handleLogout()} />
+          ? <Dashboard me={me} onLogout={() => void handleLogout()} onProfileUpdated={handleProfileUpdated} />
           : <Navigate to="/login" replace />}
       />
       <Route path="/verify-email" element={<VerifyEmailTokenPage />} />
