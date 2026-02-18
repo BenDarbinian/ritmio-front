@@ -27,7 +27,7 @@ This repository contains the React + TypeScript frontend with authentication flo
 ## Prerequisites
 
 - Node.js >= 20
-- npm >= 10
+- Yarn 1.x
 - Running Ritmio API (default `http://localhost:8080`)
 
 ## Quick Start
@@ -35,7 +35,7 @@ This repository contains the React + TypeScript frontend with authentication flo
 1. Install dependencies:
 
 ```bash
-npm install
+yarn install
 ```
 
 2. Create local env file:
@@ -47,7 +47,7 @@ cp .env.example .env
 3. Start frontend in dev mode:
 
 ```bash
-npm run dev
+yarn dev
 ```
 
 Frontend will start on `http://localhost:5173` by default.
@@ -62,10 +62,10 @@ Use `.env.example` as base.
 
 ## Scripts
 
-- `npm run dev` - start development server
-- `npm run build` - run TypeScript build and Vite production build
-- `npm run preview` - preview production build locally
-- `npm run lint` - run ESLint checks
+- `yarn dev` - start development server
+- `yarn build` - run TypeScript build and Vite production build
+- `yarn preview` - preview production build locally
+- `yarn lint` - run ESLint checks
 
 ## Main Frontend Areas
 
