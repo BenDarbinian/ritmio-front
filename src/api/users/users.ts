@@ -1,6 +1,6 @@
 import { authFetch } from '../authFetch'
 import type { MeResponse } from '../../types/users.ts'
-import { buildApiUrl } from '../../config/api.ts'
+import { apiFetch, withJsonHeaders } from '../http'
 
 type RegisterInput = {
   name: string
@@ -9,17 +9,14 @@ type RegisterInput = {
 }
 
 export async function registerUser({ name, email, password }: RegisterInput): Promise<void> {
-  const response = await fetch(buildApiUrl('/users'), {
+  const response = await apiFetch('/users', withJsonHeaders({
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       name,
       email,
       password,
     }),
-  })
+  }))
 
   if (!response.ok) {
     throw new Error('Не удалось зарегистрироваться')
@@ -27,13 +24,10 @@ export async function registerUser({ name, email, password }: RegisterInput): Pr
 }
 
 export async function resendVerificationEmail(email: string): Promise<void> {
-  const response = await fetch(buildApiUrl('/users/resend-verification'), {
+  const response = await apiFetch('/users/resend-verification', withJsonHeaders({
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({ email }),
-  })
+  }))
 
   if (!response.ok) {
     throw new Error('Не удалось отправить письмо повторно')
@@ -43,7 +37,7 @@ export async function resendVerificationEmail(email: string): Promise<void> {
 export async function verifyEmailToken(token: string): Promise<void> {
   const query = new URLSearchParams({ token })
 
-  const response = await fetch(buildApiUrl(`/users/verify-email?${query.toString()}`), {
+  const response = await apiFetch(`/users/verify-email?${query.toString()}`, {
     method: 'GET',
   })
 
@@ -52,16 +46,12 @@ export async function verifyEmailToken(token: string): Promise<void> {
   }
 }
 
-export async function getMe(accessToken?: string): Promise<MeResponse> {
+export async function getMe(): Promise<MeResponse> {
   const response = await authFetch(
     '/users/me',
-    {
+    withJsonHeaders({
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-    accessToken,
+    }),
   )
 
   if (!response.ok) {

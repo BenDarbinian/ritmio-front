@@ -1,5 +1,6 @@
 import type { AuthResponse } from '../../types/auth.ts'
-import { buildApiUrl } from '../../config/api.ts'
+import { requestTokenRefresh } from '../authFetch'
+import { apiFetch, withJsonHeaders } from '../http'
 
 const EMAIL_NOT_VERIFIED_ERROR_CODE = 'EMAIL_NOT_VERIFIED'
 
@@ -16,11 +17,10 @@ export class LoginError extends Error {
 }
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
-  const response = await fetch(buildApiUrl('/sessions'), {
+  const response = await apiFetch('/sessions', withJsonHeaders({
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
-  })
+  }))
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -51,13 +51,12 @@ export async function login(email: string, password: string): Promise<AuthRespon
 }
 
 export async function logout(accessToken: string): Promise<void> {
-  const response = await fetch(buildApiUrl('/sessions'), {
+  const response = await apiFetch('/sessions', withJsonHeaders({
     method: 'DELETE',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
-  })
+  }))
 
   if (!response.ok && response.status !== 401) {
     throw new Error('Не удалось завершить сессию')
@@ -65,17 +64,10 @@ export async function logout(accessToken: string): Promise<void> {
 }
 
 export async function refreshSession(accessToken: string): Promise<AuthResponse> {
-  const response = await fetch(buildApiUrl('/sessions/new-token'), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  })
-
-  if (!response.ok) {
+  const refreshed = await requestTokenRefresh(accessToken)
+  if (!refreshed) {
     throw new Error('Не удалось обновить сессию')
   }
 
-  return response.json() as Promise<AuthResponse>
+  return refreshed
 }

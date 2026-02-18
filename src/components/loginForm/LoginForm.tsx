@@ -3,13 +3,13 @@ import { type SyntheticEvent, useState } from 'react'
 import { LogIn, UserPlus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { LoginError, login } from '../../api/sessions/sessions'
-import { getMe, registerUser } from '../../api/users/users.ts'
+import { registerUser } from '../../api/users/users.ts'
+import Button from '../ui/Button'
 import type { AuthResponse } from '../../types/auth.ts'
-import type { MeResponse } from '../../types/users.ts'
 
 type LoginFormProps = {
   mode: 'login' | 'register'
-  onLoginSuccess: (authData: AuthResponse, meData: MeResponse) => void
+  onLoginSuccess: (authData: AuthResponse) => Promise<void>
   onVerificationRequired: (email: string) => void
 }
 
@@ -39,9 +39,7 @@ function LoginForm({ mode, onLoginSuccess, onVerificationRequired }: LoginFormPr
       }
 
       const data = await login(email.trim(), password)
-      const meData = await getMe(data.accessToken)
-
-      onLoginSuccess(data, meData)
+      await onLoginSuccess(data)
     } catch (err) {
       if (err instanceof LoginError && err.code === 'EMAIL_NOT_VERIFIED') {
         onVerificationRequired(email.trim())
@@ -59,9 +57,9 @@ function LoginForm({ mode, onLoginSuccess, onVerificationRequired }: LoginFormPr
   }
 
   return (
-    <div className="login-wrap">
-      <div className="login-card">
-        <div className="login-head">
+    <div className="auth">
+      <div className="auth__card">
+        <div className="auth__head">
           <h1>{mode === 'login' ? 'Login' : 'Register'}</h1>
           <p>
             {mode === 'login'
@@ -70,9 +68,9 @@ function LoginForm({ mode, onLoginSuccess, onVerificationRequired }: LoginFormPr
           </p>
         </div>
 
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="auth__form" onSubmit={handleSubmit}>
           {mode === 'register' && (
-            <label className="login-label">
+            <label className="auth__label">
               Name
               <input
                 type="text"
@@ -86,7 +84,7 @@ function LoginForm({ mode, onLoginSuccess, onVerificationRequired }: LoginFormPr
             </label>
           )}
 
-          <label className="login-label">
+          <label className="auth__label">
             Email
             <input
               type="email"
@@ -97,7 +95,7 @@ function LoginForm({ mode, onLoginSuccess, onVerificationRequired }: LoginFormPr
             />
           </label>
 
-          <label className="login-label">
+          <label className="auth__label">
             Password
             <input
               type="password"
@@ -109,32 +107,32 @@ function LoginForm({ mode, onLoginSuccess, onVerificationRequired }: LoginFormPr
             />
           </label>
 
-          <button className="login-submit" type="submit" disabled={loading}>
+          <Button variant="softBlue" fullWidth type="submit" disabled={loading}>
             {mode === 'login' ? <LogIn size={15} /> : <UserPlus size={15} />}
             {loading ? 'Loading...' : mode === 'login' ? 'Login' : 'Register'}
-          </button>
+          </Button>
         </form>
 
-        <div className="auth-switch-row">
+        <div className="auth__switch">
           {mode === 'login' ? (
             <>
               <span>No account?</span>
-              <Link className="auth-switch-link" to="/register">
+              <Link className="auth__switch-link" to="/register">
                 Sign up
               </Link>
             </>
           ) : (
             <>
               <span>Have an account?</span>
-              <Link className="auth-switch-link" to="/login">
+              <Link className="auth__switch-link" to="/login">
                 Sign in
               </Link>
             </>
           )}
         </div>
 
-        {error && <p className="login-state error">{error}</p>}
-        {success && <p className="login-state success">{success}</p>}
+        {error && <p className="auth__state auth__state--error">{error}</p>}
+        {success && <p className="auth__state auth__state--success">{success}</p>}
       </div>
     </div>
   )

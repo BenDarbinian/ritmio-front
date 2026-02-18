@@ -1,10 +1,10 @@
-.dashboard-page {
+.dashboard {
   width: min(100%, 72rem);
   margin: 0 auto;
   padding: clamp(0.75rem, 2vw, 1.5rem);
 }
 
-.dashboard-header {
+.dashboard__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -12,19 +12,19 @@
   margin-bottom: 1rem;
 }
 
-.dashboard-identity {
+.dashboard__identity {
   display: grid;
   gap: 0.2rem;
   min-width: 0;
 }
 
-.dashboard-user-row {
+.dashboard__user {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.dashboard-user-row p {
+.dashboard__user p {
   margin: 0;
   min-width: 0;
   white-space: nowrap;
@@ -32,7 +32,7 @@
   text-overflow: ellipsis;
 }
 
-.dashboard-avatar {
+.dashboard__avatar {
   width: 1.1rem;
   height: 1.1rem;
   border-radius: 999px;
@@ -40,67 +40,54 @@
   margin: 0;
 }
 
-.dashboard-header h1 {
+.dashboard__header h1 {
   margin: 0;
   color: #111827;
   font-size: clamp(1.4rem, 1.2rem + 1vw, 1.75rem);
 }
 
-.dashboard-header p {
+.dashboard__header p {
   margin: 0.25rem 0 0;
   color: #6b7280;
   font-size: clamp(0.82rem, 0.75rem + 0.3vw, 0.95rem);
 }
 
-.logout-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
-  padding: 0.55rem 0.85rem;
-  background: var(--accent-red-soft);
-  color: var(--accent-red);
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.dashboard-layout {
+.dashboard__layout {
   display: grid;
   grid-template-columns: 18rem minmax(0, 1fr);
   gap: clamp(0.75rem, 1.5vw, 1.25rem);
 }
 
-.left-panel,
-.center-panel {
+.dashboard__sidebar,
+.dashboard__content {
   min-width: 0;
 }
 
-.card {
+.dashboard__card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
   padding: clamp(0.7rem, 1.2vw, 0.9rem);
 }
 
-.card + .card {
+.dashboard__card + .dashboard__card {
   margin-top: 0.75rem;
 }
 
-.card h2,
-.card h3 {
+.dashboard__card h2,
+.dashboard__card h3 {
   margin: 0;
   color: #111827;
   font-size: 1rem;
 }
 
-.mock-buttons {
+.dashboard__filters {
   display: grid;
   gap: 0.5rem;
   margin-top: 0.65rem;
 }
 
-.mock-buttons button {
+.dashboard__filter-btn {
   width: 100%;
   display: inline-flex;
   align-items: center;
@@ -116,13 +103,13 @@
   font-size: 0.86rem;
 }
 
-.mock-buttons button.is-active {
+.dashboard__filter-btn--active {
   border-color: var(--accent-blue);
   background: var(--accent-blue-soft);
   color: var(--accent-blue);
 }
 
-.filter-count {
+.dashboard__filter-count {
   min-width: 1.35rem;
   text-align: center;
   border-radius: 999px;
@@ -133,47 +120,36 @@
 }
 
 @media (max-width: 64rem) {
-  .dashboard-layout {
+  .dashboard__layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .left-panel {
+  .dashboard__sidebar {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
   }
 
-  .card + .card {
+  .dashboard__card + .dashboard__card {
     margin-top: 0;
   }
 }
 
 @media (max-width: 42rem) {
-  .dashboard-header {
+  .dashboard__header {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .left-panel {
+  .dashboard__sidebar {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.calendar-actions {
+.dashboard__calendar-actions {
   margin-top: 0.55rem;
 }
 
-.go-today-btn {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  border: 1px solid #bfdbfe;
-  border-radius: 0.5rem;
-  background: var(--accent-blue-soft);
-  color: var(--accent-blue);
-  padding: 0.52rem 0.62rem;
+.dashboard__today-btn {
   font-size: 0.83rem;
-  cursor: pointer;
 }

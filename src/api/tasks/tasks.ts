@@ -1,6 +1,7 @@
 import { authFetch } from '../authFetch'
 import type { TasksPaginatedResponse } from '../../types/pagination'
-import type { TaskDetails } from '../../types/tasks'
+import type { SubtaskItem, TaskDetails } from '../../types/tasks'
+import { withJsonHeaders } from '../http'
 
 interface GetTasksInput {
   date: string
@@ -14,6 +15,7 @@ interface CreateTaskInput {
   title: string
   description: string | null
   date: string
+  subtasks: string[]
 }
 
 interface UpdateTaskCompletionInput {
@@ -36,6 +38,26 @@ interface DeleteTaskInput {
   taskId: number
 }
 
+interface GetTaskSubtasksInput {
+  taskId: number
+}
+
+interface CreateSubtaskInput {
+  taskId: number
+  title: string
+}
+
+interface UpdateSubtaskCompletionInput {
+  taskId: number
+  subtaskId: number
+  completed: boolean
+}
+
+interface UpdateSubtaskCompletionResponse {
+  subtasks: SubtaskItem[]
+  completedAt: string | null
+}
+
 export async function getTasks({
   date,
   completed,
@@ -53,13 +75,10 @@ export async function getTasks({
 
   const response = await authFetch(
     `/users/me/tasks?${query.toString()}`,
-    {
+    withJsonHeaders({
       method: 'GET',
       signal,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
+    }),
   )
 
   if (!response.ok) {
@@ -73,21 +92,21 @@ export async function createTask({
   title,
   description,
   date,
+  subtasks,
 }: CreateTaskInput): Promise<void> {
   const response = await authFetch(
     '/users/me/tasks',
-    {
+    withJsonHeaders({
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({
         title,
         description,
         date,
-        subtasks: [],
+        subtasks: subtasks.map((subtaskTitle) => ({
+          title: subtaskTitle,
+        })),
       }),
-    },
+    }),
   )
 
   if (!response.ok) {
@@ -101,13 +120,10 @@ export async function updateTaskCompletion({
 }: UpdateTaskCompletionInput): Promise<UpdateTaskCompletionResponse> {
   const response = await authFetch(
     `/users/me/tasks/${taskId}`,
-    {
+    withJsonHeaders({
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ completed }),
-    },
+    }),
   )
 
   if (!response.ok) {
@@ -120,12 +136,9 @@ export async function updateTaskCompletion({
 export async function getTaskDetails(taskId: number): Promise<TaskDetails> {
   const response = await authFetch(
     `/users/me/tasks/${taskId}`,
-    {
+    withJsonHeaders({
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
+    }),
   )
 
   if (!response.ok) {
@@ -142,16 +155,13 @@ export async function updateTask({
 }: UpdateTaskInput): Promise<TaskDetails> {
   const response = await authFetch(
     `/users/me/tasks/${taskId}`,
-    {
+    withJsonHeaders({
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({
         title,
         description,
       }),
-    },
+    }),
   )
 
   if (!response.ok) {
@@ -172,4 +182,55 @@ export async function deleteTask({ taskId }: DeleteTaskInput): Promise<void> {
   if (!response.ok) {
     throw new Error('Failed to delete task')
   }
+}
+
+export async function getTaskSubtasks({ taskId }: GetTaskSubtasksInput): Promise<SubtaskItem[]> {
+  const response = await authFetch(
+    `/users/me/tasks/${taskId}/subtasks`,
+    withJsonHeaders({
+      method: 'GET',
+    }),
+  )
+
+  if (!response.ok) {
+    throw new Error('Failed to load subtasks')
+  }
+
+  return response.json() as Promise<SubtaskItem[]>
+}
+
+export async function createSubtask({ taskId, title }: CreateSubtaskInput): Promise<void> {
+  const response = await authFetch(
+    `/users/me/tasks/${taskId}/subtasks`,
+    withJsonHeaders({
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+      }),
+    }),
+  )
+
+  if (!response.ok) {
+    throw new Error('Failed to create subtask')
+  }
+}
+
+export async function updateSubtaskCompletion({
+  taskId,
+  subtaskId,
+  completed,
+}: UpdateSubtaskCompletionInput): Promise<UpdateSubtaskCompletionResponse> {
+  const response = await authFetch(
+    `/users/me/tasks/${taskId}/subtasks/${subtaskId}`,
+    withJsonHeaders({
+      method: 'PATCH',
+      body: JSON.stringify({ completed }),
+    }),
+  )
+
+  if (!response.ok) {
+    throw new Error('Failed to update subtask')
+  }
+
+  return response.json() as Promise<UpdateSubtaskCompletionResponse>
 }

@@ -1,15 +1,18 @@
 import { createPortal } from 'react-dom'
 import { useRef, useState } from 'react'
-import type { SyntheticEvent } from 'react'
-import { CalendarDays, X } from 'lucide-react'
+import { CalendarDays } from 'lucide-react'
 import { dateKeyToMonthStart, formatHumanDateDMY } from '../../utils/calendar'
 import Calendar from '../calendar/Calendar'
+import Modal from '../ui/Modal'
+import SubtasksEditor from './SubtasksEditor'
+import TaskFormLayout from './TaskFormLayout'
 import { usePopoverPosition } from './usePopoverPosition'
 
 type CreateTaskPayload = {
   title: string
   description: string
   date: string
+  subtasks: string[]
 }
 
 type CreateTaskModalProps = {
@@ -28,6 +31,7 @@ function CreateTaskModal({
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [date, setDate] = useState(selectedDate)
+  const [subtasks, setSubtasks] = useState<string[]>([])
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [viewMonth, setViewMonth] = useState<Date>(dateKeyToMonthStart(selectedDate))
 
@@ -40,124 +44,92 @@ function CreateTaskModal({
     popoverRef: datePickerPopoverRef,
   })
 
-  async function handleSubmit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>): Promise<void> {
-    event.preventDefault()
-
+  async function handleSubmit(): Promise<void> {
     await onSubmit({
       title,
       description,
       date,
+      subtasks: subtasks.map((item) => item.trim()).filter(Boolean),
     })
   }
 
+  function handleModalClose() {
+    if (showDatePicker) {
+      setShowDatePicker(false)
+      return
+    }
+
+    onClose()
+  }
+
   return (
-    <div
-      className="modal-overlay"
-      role="dialog"
-      aria-modal="true"
-      onMouseDown={(event) => {
-        if (event.target !== event.currentTarget) {
-          return
-        }
-
-        if (showDatePicker) {
+    <Modal
+      onClose={handleModalClose}
+      onCardClick={(event) => {
+        if (showDatePicker && datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
           setShowDatePicker(false)
-          return
         }
-
-        onClose()
       }}
     >
-      <div
-        className="modal-card"
-        onClick={(event) => {
-          if (showDatePicker && datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
-            setShowDatePicker(false)
-          }
-
-          event.stopPropagation()
-        }}
+      <h3 className="task-modal__title">Create task</h3>
+      <TaskFormLayout
+        title={title}
+        description={description}
+        submitting={submitting}
+        submitIdleLabel="Create"
+        submitLoadingLabel="Creating..."
+        onTitleChange={setTitle}
+        onDescriptionChange={setDescription}
+        onCancel={onClose}
+        onSubmit={handleSubmit}
       >
-        <h3>Create task</h3>
-        <form className="create-form" onSubmit={handleSubmit}>
-          <label>
-            Title
-            <input
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              minLength={1}
-              maxLength={255}
-              autoFocus
-              required
-            />
-          </label>
+        <SubtasksEditor
+          title="Subtasks"
+          addLabel="Add subtask"
+          items={subtasks}
+          placeholderPrefix="Subtask"
+          idPrefix="create-subtask"
+          onChange={setSubtasks}
+        />
 
-          <label>
-            Description
-            <textarea
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              maxLength={512}
-              rows={3}
-            />
-          </label>
+        <div className="task-form__date-picker" ref={datePickerRef}>
+          <label>Date</label>
+          <button
+            type="button"
+            className="task-form__date-button"
+            onClick={() => setShowDatePicker((prev) => !prev)}
+          >
+            <CalendarDays size={14} />
+            {formatHumanDateDMY(date)}
+          </button>
 
-          <div className="date-picker-field" ref={datePickerRef}>
-            <label>Date</label>
-            <button
-              type="button"
-              className="date-picker-button"
-              onClick={() => setShowDatePicker((prev) => !prev)}
-            >
-              <CalendarDays size={14} />
-              {formatHumanDateDMY(date)}
-            </button>
-
-            {showDatePicker && createPortal(
-              <div
-                ref={datePickerPopoverRef}
-                className={`date-picker-popover ${vertical === 'top' ? 'is-top' : ''}`}
-                style={{
-                  position: 'fixed',
-                  top: `${position.top}px`,
-                  left: `${position.left}px`,
-                  width: `${position.width}px`,
-                }}
-                onClick={(event) => event.stopPropagation()}
-              >
-                <Calendar
-                  selectedDate={date}
-                  viewMonth={viewMonth}
-                  onViewMonthChange={setViewMonth}
-                  onSelectDate={(dateKey) => {
-                    setDate(dateKey)
-                    setShowDatePicker(false)
-                  }}
-                />
-              </div>,
-              document.body,
-            )}
-          </div>
-
-          <div className="modal-actions">
-            <button
-              type="button"
-              className="btn-cancel"
-              onClick={() => {
-                onClose()
+          {showDatePicker && createPortal(
+            <div
+              ref={datePickerPopoverRef}
+              className={`task-form__date-popover ${vertical === 'top' ? 'task-form__date-popover--top' : ''}`}
+              style={{
+                position: 'fixed',
+                top: `${position.top}px`,
+                left: `${position.left}px`,
+                width: `${position.width}px`,
               }}
+              onClick={(event) => event.stopPropagation()}
             >
-              <X size={14} />
-              Cancel
-            </button>
-            <button type="submit" className="btn-create" disabled={submitting}>
-              {submitting ? 'Creating...' : 'Create'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              <Calendar
+                selectedDate={date}
+                viewMonth={viewMonth}
+                onViewMonthChange={setViewMonth}
+                onSelectDate={(dateKey) => {
+                  setDate(dateKey)
+                  setShowDatePicker(false)
+                }}
+              />
+            </div>,
+            document.body,
+          )}
+        </div>
+      </TaskFormLayout>
+    </Modal>
   )
 }
 

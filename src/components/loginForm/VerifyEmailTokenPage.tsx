@@ -2,6 +2,7 @@ import { CheckCircle2, CircleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { verifyEmailToken } from '../../api/users/users.ts'
+import Button from '../ui/Button'
 import './LoginForm.css'
 
 function VerifyEmailTokenPage() {
@@ -36,24 +37,24 @@ function VerifyEmailTokenPage() {
   }, [token])
 
   return (
-    <div className="login-wrap">
-      <div className="login-card verify-card">
-        <div className={`verify-icon ${status === 'error' ? 'is-error' : ''}`}>
+    <div className="auth">
+      <div className="auth__card auth__card--verify">
+        <div className={`auth__verify-icon ${status === 'error' ? 'auth__verify-icon--error' : ''}`}>
           {status === 'error' ? <CircleAlert size={20} /> : <CheckCircle2 size={20} />}
         </div>
 
-        <div className="login-head">
+        <div className="auth__head">
           <h1>Email verification</h1>
           <p>{message}</p>
         </div>
 
-        <div className="verify-actions">
+        <div className="auth__verify-actions">
           {status === 'loading' ? (
-            <button type="button" className="login-submit" disabled>
+            <Button type="button" variant="softBlue" fullWidth disabled>
               Checking...
-            </button>
+            </Button>
           ) : (
-            <Link to="/" className="verify-link-btn">
+            <Link to="/" className="auth__verify-link-btn">
               Go to login
             </Link>
           )}

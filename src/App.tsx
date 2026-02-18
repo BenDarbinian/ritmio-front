@@ -184,14 +184,24 @@ function App() {
     }
   }, [])
 
-  function handleLoginSuccess(authData: AuthResponse, meData: MeResponse) {
+  async function handleLoginSuccess(authData: AuthResponse): Promise<void> {
     persistSession(authData)
     scheduleRefresh(authData.refreshAfter)
-    setMe(meData)
-    persistMeCache(meData)
     setVerificationEmail('')
     setStatus('auth')
     navigate('/dashboard', { replace: true })
+
+    try {
+      const meData: MeResponse = await getMe()
+      setMe(meData)
+      persistMeCache(meData)
+    } catch {
+      clearRefreshTimer()
+      clearStoredSession()
+      setMe(null)
+      setStatus('guest')
+      navigate('/login', { replace: true })
+    }
   }
 
   function handleVerificationRequired(email: string) {

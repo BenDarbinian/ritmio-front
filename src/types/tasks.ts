@@ -5,9 +5,16 @@ export type TaskListItem = {
   completedAt: string | null
 }
 
+export type SubtaskItem = {
+  id: number
+  title: string
+  completedAt: string | null
+}
+
 export type TaskDetails = {
   id: number
   title: string
   description: string | null
   completedAt: string | null
+  subtasks: SubtaskItem[]
 }

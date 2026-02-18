@@ -1,6 +1,7 @@
 import { MailCheck, RotateCw } from 'lucide-react'
 import { useState } from 'react'
 import { resendVerificationEmail } from '../../api/users/users.ts'
+import Button from '../ui/Button'
 import './LoginForm.css'
 
 type EmailVerificationViewProps = {
@@ -38,12 +39,12 @@ function EmailVerificationView({ email, onBackToLogin }: EmailVerificationViewPr
   }
 
   return (
-    <div className="login-wrap">
-      <div className="login-card verify-card">
-        <div className="verify-icon">
+    <div className="auth">
+      <div className="auth__card auth__card--verify">
+        <div className="auth__verify-icon">
           <MailCheck size={20} />
         </div>
-        <div className="login-head">
+        <div className="auth__head">
           <h1>Verify your email</h1>
           <p>
             {email ? (
@@ -57,24 +58,24 @@ function EmailVerificationView({ email, onBackToLogin }: EmailVerificationViewPr
           </p>
         </div>
 
-        <div className="verify-actions">
-          <button
-            className="login-submit"
-            type="button"
+        <div className="auth__verify-actions">
+          <Button
+            variant="softBlue"
+            fullWidth
             disabled={sending || !email}
             onClick={() => void handleResend()}
           >
             <RotateCw size={15} />
             {sending ? 'Sending...' : 'Resend email'}
-          </button>
+          </Button>
 
-          <button className="verify-back-btn" type="button" onClick={onBackToLogin}>
+          <Button className="auth__verify-back-btn" type="button" onClick={onBackToLogin}>
             Back to login
-          </button>
+          </Button>
         </div>
 
-        {error && <p className="login-state error">{error}</p>}
-        {message && <p className="login-state success">{message}</p>}
+        {error && <p className="auth__state auth__state--error">{error}</p>}
+        {message && <p className="auth__state auth__state--success">{message}</p>}
       </div>
     </div>
   )

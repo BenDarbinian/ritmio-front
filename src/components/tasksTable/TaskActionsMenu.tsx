@@ -27,12 +27,12 @@ function TaskActionsMenu({
 }: TaskActionsMenuProps) {
   return (
     <div
-      className="task-menu-zone"
+      className="tasks-table__menu"
       ref={isOpen ? menuRef : null}
       onClick={(event) => event.stopPropagation()}
     >
       <button
-        className="task-menu-btn"
+        className="tasks-table__menu-btn"
         type="button"
         aria-label="Task actions"
         onClick={onToggle}
@@ -41,23 +41,23 @@ function TaskActionsMenu({
       </button>
 
       {isOpen && (
-        <div className="task-menu-popover">
-          <p className="task-menu-title">{details?.title ?? task.title}</p>
+        <div className="tasks-table__menu-popover">
+          <p className="tasks-table__menu-title">{details?.title ?? task.title}</p>
           {loading ? (
-            <p className="task-menu-description">Loading description...</p>
+            <p className="tasks-table__menu-description">Loading description...</p>
           ) : (
-            <p className="task-menu-description">
+            <p className="tasks-table__menu-description">
               {details?.description?.trim() ? details.description : 'No description'}
             </p>
           )}
-          <div className="task-menu-actions">
-            <button type="button" onClick={onEdit}>
+          <div className="tasks-table__menu-actions">
+            <button type="button" className="tasks-table__menu-action" onClick={onEdit}>
               <Pencil size={14} />
               Edit
             </button>
             <button
               type="button"
-              className="danger"
+              className="tasks-table__menu-action tasks-table__menu-action--danger"
               disabled={deleting}
               onClick={onDelete}
             >

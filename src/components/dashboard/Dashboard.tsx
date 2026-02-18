@@ -4,7 +4,8 @@ import type { MeResponse } from '../../types/users'
 import { formatDateKey } from '../../utils/calendar'
 import Calendar from '../calendar/Calendar'
 import TasksTable from '../tasksTable/TasksTable'
-import CheckCircleIcon from '../ui/CheckCircleIcon'
+import Button from '../ui/Button'
+import StatusCircleIcon from '../ui/StatusCircleIcon'
 import './Dashboard.css'
 
 type DashboardProps = {
@@ -23,24 +24,24 @@ function Dashboard({ me, onLogout }: DashboardProps) {
   const avatarUrl = `https://api.dicebear.com/9.x/identicon/svg?seed=${encodeURIComponent(avatarSeed)}&size=32&radius=12`
 
   return (
-    <main className="dashboard-page">
-      <header className="dashboard-header">
-        <div className="dashboard-identity">
+    <main className="dashboard">
+      <header className="dashboard__header">
+        <div className="dashboard__identity">
           <h1>Dashboard</h1>
-          <div className="dashboard-user-row">
-            <img className="dashboard-avatar" src={avatarUrl} alt="User avatar" />
+          <div className="dashboard__user">
+            <img className="dashboard__avatar" src={avatarUrl} alt="User avatar" />
             <p>{me?.name ?? 'User'} · {me?.email ?? 'No email'}</p>
           </div>
         </div>
-        <button className="logout-btn" onClick={onLogout}>
+        <Button variant="softRed" onClick={onLogout}>
           <LogOut size={15} />
           Logout
-        </button>
+        </Button>
       </header>
 
-      <section className="dashboard-layout">
-        <aside className="left-panel">
-          <div className="card">
+      <section className="dashboard__layout">
+        <aside className="dashboard__sidebar">
+          <div className="dashboard__card">
             <h2>Calendar</h2>
             <Calendar
               selectedDate={selectedDate}
@@ -48,10 +49,11 @@ function Dashboard({ me, onLogout }: DashboardProps) {
               onViewMonthChange={setViewMonth}
               onSelectDate={setSelectedDate}
             />
-            <div className="calendar-actions">
-              <button
-                type="button"
-                className="go-today-btn"
+            <div className="dashboard__calendar-actions">
+              <Button
+                variant="softBlue"
+                fullWidth
+                className="dashboard__today-btn"
                 onClick={() => {
                   setSelectedDate(todayKey)
                   setViewMonth(new Date(today.getFullYear(), today.getMonth(), 1))
@@ -59,27 +61,27 @@ function Dashboard({ me, onLogout }: DashboardProps) {
               >
                 <CalendarDays size={14} />
                 Go to today
-              </button>
+              </Button>
             </div>
           </div>
 
-          <div className="card">
+          <div className="dashboard__card">
             <h3>Filters</h3>
-            <div className="mock-buttons">
+            <div className="dashboard__filters">
               <button
-                className={showCompletedOnly ? 'is-active' : ''}
+                className={`dashboard__filter-btn ${showCompletedOnly ? 'dashboard__filter-btn--active' : ''}`}
                 type="button"
                 onClick={() => setShowCompletedOnly((prev) => !prev)}
               >
-                <CheckCircleIcon checked tone={showCompletedOnly ? 'blue' : 'green'} size="sm" />
+                <StatusCircleIcon state="done" tone={showCompletedOnly ? 'blue' : 'green'} size="sm" />
                 <span>Completed</span>
-                <span className="filter-count">{completedCount}</span>
+                <span className="dashboard__filter-count">{completedCount}</span>
               </button>
             </div>
           </div>
         </aside>
 
-        <section className="center-panel">
+        <section className="dashboard__content">
           <TasksTable
             selectedDate={selectedDate}
             showCompletedOnly={showCompletedOnly}
